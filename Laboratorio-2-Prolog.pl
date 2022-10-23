@@ -71,7 +71,7 @@ transform2(Num, Num1):-
 %Dominio: X(int) x Y(int) x R(C) x G(C) x B(C) x Depth(int). 
 % X e Y representan la posicion del pixel, R G B los colores y Depth la profundidad.
 
-pixrgb(X,Y,R,G,B,Depth,[[X,Y],[R,G,B],Depth,"pixrgb"]):-
+pixrgb(X,Y,R,G,B,Depth,[X,Y,[R,G,B],Depth,"pixrgb"]):-
     integer(X),
     X >= 0, 
     integer(Y),
@@ -234,6 +234,31 @@ getSecondElement([_,Element|_], Element).
 
 split(L,0,[],L).
 split([X|Xs],N,[X|Ys],Zs) :- N > 0, N1 is N - 1, split(Xs,N1,Ys,Zs).
+
+%Intento de implementar flip de otra manera. 
+
+
+%Meta: Hacer funcion que reciba 
+
+FlipH(Image, NewImage):-
+    image(Width,Height,Pix, Image),
+    pixelIsFlipH(Pix, Height, NewPixels),
+    image(Width, Height, NewPixels, NewImage).
+
+pixelIsFlipH([Pixel|Resto], Ancho, NewPixeles):-
+    pixbit(X,Y,Bit,Depth, Pixel),
+    ( Y < Ancho
+    -> NewY is Y + 1
+    ; NewY is Y - 1
+    ),
+    pixbit(X, NewY, Bit, Depth, NewPixel).
+    agregar(NewPixel, NewPixels).
+
+agregar(Elemento, [], [Elemento]).
+agregar(Elemento, Lista, [Elemento|Lista]).
+
+
+
 
 
 
