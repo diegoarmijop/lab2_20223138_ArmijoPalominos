@@ -23,6 +23,8 @@ verifyPixbit(Pix):-
     integer(Depth), 
     Depth >= 0,!.
 
+%-----------------------------------------------------------------------------------------
+
 %TDA pixrgb
 %Dominio: X(int) x Y(int) x R(C) x G(C) x B(C) x Depth(int). 
 % X e Y representan la posicion del pixel, R G B los colores y Depth la profundidad.
@@ -48,6 +50,8 @@ verifyPixrgb(Pix):-
     B < 256,
     integer(Depth),
     Depth >= 0.
+
+%-----------------------------------------------------------------------------------------
 
 %TDA pixhex
 %Dominio: X(int) x Y(int) x Hex(string) x D(int). S
@@ -77,13 +81,15 @@ verifyPixhex(Pix):-
     integer(D),
     D >= 0.
 
+%-----------------------------------------------------------------------------------------
+
 %TDAimage 
 %Dominio: Width(int) x Height(int) x Pixeles(string) x D(int). S
 % Width x Height representan el ancho y alto de una fotografia... 
 
 %Constructor de image.
 image(Width,Height,Pixels,[Width,Height,Pixels,TypePixels]):-
-    maplist(getTypePixels, Pixels, TypePixels).
+    maplist(getTypePixel, Pixels, TypePixels).
 
 %Funcion de pertenencia de image.
 verifyImage(Image):-
@@ -96,6 +102,8 @@ verifyImage(Image):-
     WidthXHeight is Width*Height,
     length(Pixels, WidthXHeight).
 
+%-----------------------------------------------------------------------------------------
+
 %Funcion que verifica si la lista contiene solo "pixbit".
 isPixbit([]).
 isPixbit([Cabeza|Cola]):-
@@ -105,8 +113,10 @@ isPixbit([Cabeza|Cola]):-
 %Funcion que verifica si una imagen es bitmap.
 imageIsBitmap(Image):-
     verifyImage(Image),
-    getListPixels(Image, Aux),
+    getListTypePixels(Image, Aux),
     isPixbit(Aux),!.
+
+%-----------------------------------------------------------------------------------------
 
 %Funcion que verifica si la lista contiene solo "pixrgb".
 isPixmap([]).
@@ -117,8 +127,10 @@ isPixmap([Cabeza|Cola]):-
 %Verifica si la imagen es un Pixmap.
 imageIsPixmap(Image):-
     verifyImage(Image),
-    getListPixels(Image, Aux),
+    getListTypePixels(Image, Aux),
     isPixmap(Aux). 
+
+%-----------------------------------------------------------------------------------------
 
 %Funcion que verifica si la lista contienen solo "pixhex".
 isHexmap([]).
@@ -129,8 +141,10 @@ isHexmap([Cabeza|Cola]):-
 %Verifica si la imagen es un Hexmap.
 imageIsHexmap(Image):-
     verifyImage(Image),
-    getListPixels(Image, Aux),
+    getListTypePixels(Image, Aux),
     isHexmap(Aux).
+
+%-----------------------------------------------------------------------------------------
 
 %Funcion que encuentra el numero de elementos de una lista.
 listLength([],0).
@@ -144,6 +158,9 @@ imageIsCompressed(Image):-
     listLength(Pixels, Count),
     Count \= WidthXHeight.
 
+%-----------------------------------------------------------------------------------------
+
+%Funcion que agrega un elemento a una lista.
 addElement(Element, [], [Element]).
 addElement(Element, List, [Element|List]).
 
@@ -173,6 +190,8 @@ pixelIsFlipH([Pixel|Resto], Ancho, NewPixeles):-
     ->  pixhex(X,NewY,Hex,D, NewPixel)),
     addElement(NewPixel, AuxNewPixeles, NewPixeles).
 
+%-----------------------------------------------------------------------------------------
+
 %Funcion que invierte una imágen verticalmente.
 imageFlipV(Image, NewImage):-
     image(Width,Height,Pixeles, Image),
@@ -198,8 +217,9 @@ pixelIsFlipV([Pixel|Resto], Alto, NewPixeles):-
     verifyPixhex(Pixel)
     ->  pixhex(NewX,Y,Hex,D, NewPixel)),
     addElement(NewPixel, AuxNewPixeles, NewPixeles).
-    
 
+%-----------------------------------------------------------------------------------------
+    
 %Funcion que recorta una imágen a partir de un cuadrante.
 %Falta cambiar Newcoords.
 imageCrop(Image,X1,Y1,X2,Y2, NewImage):-
@@ -241,20 +261,116 @@ maxElement(X1,X2,X3):-
     ->  X3 is X1;
     X3 is X2
     ).
+%-----------------------------------------------------------------------------------------
+
+%Funcion que transforma una imagen desde una representación RGB a una representación HEX.
+imageRGBToHex(Image, NewImage):-
+    image(Width,Height,Pixeles, Image),
+    rgbTohex(Pixeles, NewPixeles),
+    image(Width,Height,NewPixeles, NewImage).
+
+%Funcion que dada una lista de pixeles rgb esta transforma los colores a Hex.
+rgbTohex([],[]).
+rgbTohex([Pixel|Resto],NewPixeles):-
+    rgbTohex(Resto, AuxNewPixeles),
+ 	pixrgb(X,Y,R,G,B,Depth,Pixel),
+   	hex_bytes(L, [R,G,B]),
+    pixhex(X,Y,L,Depth, NewPixel),
+    addElement(NewPixel, AuxNewPixeles, NewPixeles).   
+
+%-------------------------------------------------------------------------------------------
+%Histograma(pixbit)
+
+preBit(L, L2):-
+    msort(L, L1),
+    encode(L1, L2).
+
+%-----------------------------------------------------------------------------------------
+%Histogram(pixrgb).
+
+getR([R,_,_], R).
+getG([_,G,_], G).
+getB([_,_,B], B).
+
+extractRGB(List,L1,L2,L3):-
+    maplist(getR,List, P1),
+    msort(P1, L1),
+    maplist(getG,List, P2),
+    msort(P2, L2),
+    maplist(getB,List, P3),
+    msort(P3, L3).
+
+preRGB(R,G,B,[L1,L2,L3]):-
+	encode(R, L1),
+  	encode(G, L2),
+    encode(B, L3).
+
+%-----------------------------------------------------------------------------------------
+
+preHex(Hex, L2):-
+    msort(Hex, L1), 
+    encode(L1, L2).
+
+%-----------------------------------------------------------------------------------------
+
+%Funcion que genera un histograma, sirve para pixbit, pixrgb y pixhex.
+imageToHistogram(Image, Histogram):-
+  	image(_,_,Pixels,Image),
+    (getFirstElement(Pixels, Pix), verifyPixbit(Pix)
+    -> extractcAllColors(Pixels,L), preBit(L, Histogram);
+    getFirstElement(Pixels, Pix), verifyPixrgb(Pix)
+    -> extractcAllColors(Pixels,L), extractRGB(L,R,G,B), preRGB(R,G,B, Histogram);
+    getFirstElement(Pixels, Pix), verifyPixhex(Pix)
+    -> extractcAllColors(Pixels,L), preHex(L, Histogram)).
+
+%Funcion que extrae en una lista los colores de una lista de pixeles. 
+extractcAllColors([],[]).
+extractcAllColors([Pixel|Rest], Colors):-
+    extractcAllColors(Rest, AuxNewColors),
+    getPixelColor(Pixel, Color),
+ 	addElement(Color, AuxNewColors, Colors).
+
+%Funcion que obtiene el color de un pixel.
+getPixelColor([_,_,Color|_], Color).
+
+%-----------------------------------------------------------------------------------------
+
 
 %Funcion que determina si un elemento pertenece a una lista. 
 member(X,[X|_]).
 member(X,[_|Xs]) :- member(X,Xs),!.
 
+%Funcion que retorna el primer elemento de una lista.
+getFirstElement([Element|_], Element).
 
-getTypePixels([_,_,_,_,Type|_], Type).
-getListPixels1([_,_,Pixels|_], Pixels).
-getListPixels([_,_,_,TypePix|_], TypePix).
 
+getTypePixel([_,_,_,_,Type|_], Type).
+getListTypePixels([_,_,_,TypePix|_], TypePix).
+getListPixels([_,_,Pixels|_], Pixels).
+
+
+%Funcion que recibe una lista y hace que los duplicados consecutivos se
+%agrupanen en terminos [NumeroDeDuplicados, Elemento].
+encode(L1,L2) :- pack(L1,L), transform(L,L2).
+
+transform([],[]).
+transform([[X|Xs]|Ys],[[N,X]|Zs]) :- length([X|Xs],N), transform(Ys,Zs).
+
+%Funcion que recibe una lista y separa en sublistas los elementos que esten repetidos.       
+pack([],[]).
+pack([X|Xs],[Z|Zs]) :- transfer(X,Xs,Ys,Z), pack(Ys,Zs).
+
+transfer(X,[],[],[X]).
+transfer(X,[Y|Ys],[Y|Ys],[X]) :- X \= Y.
+transfer(X,[X|Xs],Ys,[X|Zs]) :- transfer(X,Xs,Ys,Zs).
+
+
+%Funcion que modifica una lista en base a una funcion. 
 maplist(_,[],[]).
 maplist(P,[A|As],[B|Bs]) :- call(P,A,B),
 maplist(P,As,Bs),!.
 
+%Verifica que dos "algo" sean iguales.
 equals(X, Y):- X = Y.
 
 
@@ -267,4 +383,6 @@ equals(X, Y):- X = Y.
 ?- 
 pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2),pixbit(1, 0, 1,30, P3),pixbit(1, 1, 1,40, P4), image(2,2, [P1,P2,P3,P4], CS), verifyImage(CS), imageIsBitmap(CS).
 
+?- pixrgb( 0, 0, 10, 20, 180, 10, P1), pixrgb( 0, 1, 24, 22, 20, 20, P2), pixrgb( 1, 0, 30, 30, 70, 32, P3), pixrgb( 1, 1, 100, 45, 45, 40, P4), image( 2, 2,[ P1, P2, P3, P4], I1), getListPixels1(I1, I2), extraerColoresT(I2, I3), extraerRGB(I3, L1,L2,L3).
+?-  pixhex(0,0,"#FF0011",10, P1), pixhex(0,1,"#AABBCC",20, P2), pixhex(1,0,"#A5F2C2",30,P3), pixhex(1,1,"#FFFFFF",40,P4), image(2,2,[P1,P2,P3,P4], CS), imageToHistogram(CS,CS2). 
 */
