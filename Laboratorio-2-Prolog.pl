@@ -345,16 +345,12 @@ pixelIsRotate90([Pixel|Resto], Alto, NewPixeles):-
     addElement(NewPixel, AuxNewPixeles, NewPixeles).
 
 pixelIsRotate90Aux([],_,_,[]).
-pixelIsRotate90Aux([Pixel|Resto], Ancho,Alto, NewPixeles):-
+pixelIsRotate90Aux([Pixel|Resto], Ancho,Alto ,NewPixeles):-
     pixelIsRotate90Aux(Resto,Ancho, Alto, AuxNewPixeles),
    	pixbit(X,Y,Bit,Depth, Pixel),
     %Medida is Ancho - 1,
-    (Y >= (Ancho-1) 
-    ->  NewY is abs(X+(Alto-1)), NewX is abs(X-(Alto-1));
-    X = (Y-1)
-    ->  NewY is abs(Y+(Alto-1)),NewX is Y;
-    NewY is X,NewX is abs(Y - (Alto-1))
-    ),
+    NewY is X,
+    NewX is abs(Y-(Ancho-1)),
     pixbit(NewX,NewY,Bit,Depth,NewPixel),
     addElement(NewPixel, AuxNewPixeles, NewPixeles).
 
@@ -481,5 +477,6 @@ pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2),pixbit(1, 0, 1,30, P3),pixbit(1, 
 ?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(2, 0, 1,10, P7),pixbit(2, 1, 1,30, P8), image(2,3,[P1,P2,P4,P5,P7,P8], CS),getListPixels(CS,L), pixbit(0,0,0,30, BitAux)  ,preImageChangePixelBit(L, BitAux,L2).   
 ?- pixrgb( 0, 0, 10, 20, 180, 10, P1), pixrgb( 0, 1, 24, 22, 20, 20, P2), pixrgb( 1, 0, 30, 30, 70, 32, P3), pixrgb( 1, 1, 100, 45, 45, 40, P4), image( 2, 2,[ P1, P2, P3, P4], I1), pixrgb(0,1,56,78,65,13, RgbAux),imageInvertColorRGB(RgbAux, RMody).
 */
+
 
 
