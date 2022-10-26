@@ -335,7 +335,95 @@ getPixelColor([_,_,Color|_], Color).
 
 %-----------------------------------------------------------------------------------------
 
+pixelIsRotate90([],_,[]).
+pixelIsRotate90([Pixel|Resto], Alto, NewPixeles):-
+    pixelIsRotate90(Resto, Alto, AuxNewPixeles),
+   	pixbit(X,Y,Bit,Depth, Pixel),
+    NewY is X,
+    NewX is abs(Y - (Alto-1)),
+    pixbit(NewX,NewY,Bit,Depth,NewPixel),
+    addElement(NewPixel, AuxNewPixeles, NewPixeles).
 
+pixelIsRotate90Aux([],_,_,[]).
+pixelIsRotate90Aux([Pixel|Resto], Ancho,Alto, NewPixeles):-
+    pixelIsRotate90Aux(Resto,Ancho, Alto, AuxNewPixeles),
+   	pixbit(X,Y,Bit,Depth, Pixel),
+    %Medida is Ancho - 1,
+    (Y >= (Ancho-1) 
+    ->  NewY is abs(X+(Alto-1)), NewX is abs(X-(Alto-1));
+    X = (Y-1)
+    ->  NewY is abs(Y+(Alto-1)),NewX is Y;
+    NewY is X,NewX is abs(Y - (Alto-1))
+    ),
+    pixbit(NewX,NewY,Bit,Depth,NewPixel),
+    addElement(NewPixel, AuxNewPixeles, NewPixeles).
+
+%-----------------------------------------------------------------------------------------
+%changePixel
+imageChangePixel(Image,PixelModificado,NewImage):-
+    image(Width,Height,Pixels, Image),
+    (getFirstElement(Pixels, Pix), verifyPixbit(Pix), verifyPixbit(PixelModificado)
+    -> preImageChangePixelBit(Pixels,PixelModificado, NewPixeles), image(Width,Height,NewPixeles, NewImage);
+    getFirstElement(Pixels, Pix), verifyPixrgb(Pix), verifyPixrgb(PixelModificado)
+    -> preImageChangePixelRGB(Pixels,PixelModificado, NewPixeles), image(Width,Height,NewPixeles, NewImage);
+    getFirstElement(Pixels, Pix), verifyPixhex(Pix), verifyPixhex(PixelModificado)
+    -> preImageChangePixelHex(Pixels,PixelModificado, NewPixeles), image(Width,Height,NewPixeles, NewImage)).
+   
+preImageChangePixelBit([],_,[]).
+preImageChangePixelBit([Pixel|Resto], PixelModificado, NewPixeles):-
+    preImageChangePixelBit(Resto, PixelModificado, AuxNewPixeles),
+    getX(PixelModificado, X1),
+    getY(PixelModificado, Y1),
+    getPixelColor(PixelModificado, BitAux),
+    getDepth(PixelModificado, DepthAux),
+   	pixbit(X,Y,Bit,Depth, Pixel),
+    (   X = X1, Y = Y1
+    ->  NewBit is BitAux, NewDepth is DepthAux,pixbit(X,Y,NewBit,NewDepth,NewPixel),addElement(NewPixel, AuxNewPixeles, NewPixeles);
+    pixbit(X,Y,Bit,Depth,NewPixel),addElement(NewPixel, AuxNewPixeles, NewPixeles)
+    ).
+
+preImageChangePixelRGB([],_,[]).
+preImageChangePixelRGB([Pixel|Resto], PixelModificado, NewPixeles):-
+    preImageChangePixelRGB(Resto, PixelModificado, AuxNewPixeles),
+    getX(PixelModificado, X1),
+    getY(PixelModificado, Y1),
+    getPixelColor(PixelModificado, List),
+    getR(List, R1),
+	getG(List, G1),
+	getB(List, B1),
+    getDepth(PixelModificado, DepthAux),
+   	pixrgb(X,Y,R,G,B,Depth, Pixel),
+    (   X = X1, Y = Y1
+    ->  NewR is R1, NewG is G1, NewB is B1, NewDepth is DepthAux,pixrgb(X,Y,NewR,NewG,NewB,NewDepth, NewPixel),addElement(NewPixel, AuxNewPixeles, NewPixeles);
+    pixrgb(X,Y,R,G,B,Depth,NewPixel),addElement(NewPixel, AuxNewPixeles, NewPixeles)
+    ).
+    
+preImageChangePixelHex([],_,[]).
+preImageChangePixelHex([Pixel|Resto], PixelModificado, NewPixeles):-
+    preImageChangePixelHex(Resto, PixelModificado, AuxNewPixeles),
+    getX(PixelModificado, X1),
+    getY(PixelModificado, Y1),
+    getPixelColor(PixelModificado, HexAux),
+    getDepth(PixelModificado, DepthAux),
+   	pixhex(X,Y,Hex,Depth, Pixel),
+    (   X = X1, Y = Y1
+    ->  NewHex is HexAux, NewDepth is DepthAux,pixhex(X,Y,NewHex,NewDepth,NewPixel),addElement(NewPixel, AuxNewPixeles, NewPixeles);
+    pixhex(X,Y,Hex,Depth,NewPixel),addElement(NewPixel, AuxNewPixeles, NewPixeles)
+    ).
+
+%-----------------------------------------------------------------------------------------
+
+imageInvertColorRGB(PixelRGB, PixelRGBModify):-
+    verifyPixrgb(PixelRGB),
+    pixrgb(X,Y,R,G,B,Depth, PixelRGB),
+    NewR is abs(R-255),
+    NewG is abs(G-255),
+    NewB is abs(B-255),
+    pixrgb(X,Y,NewR,NewG,NewB,Depth, PixelRGBModify).
+    
+ 
+%-----------------------------------------------------------------------------------------
+    
 %Funcion que determina si un elemento pertenece a una lista. 
 member(X,[X|_]).
 member(X,[_|Xs]) :- member(X,Xs),!.
@@ -343,6 +431,9 @@ member(X,[_|Xs]) :- member(X,Xs),!.
 %Funcion que retorna el primer elemento de una lista.
 getFirstElement([Element|_], Element).
 
+getX([X|_], X).
+getY([_,Y|_], Y).
+getDepth([_,_,_,Depth|_], Depth).
 
 getTypePixel([_,_,_,_,Type|_], Type).
 getListTypePixels([_,_,_,TypePix|_], TypePix).
@@ -385,4 +476,10 @@ pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2),pixbit(1, 0, 1,30, P3),pixbit(1, 
 
 ?- pixrgb( 0, 0, 10, 20, 180, 10, P1), pixrgb( 0, 1, 24, 22, 20, 20, P2), pixrgb( 1, 0, 30, 30, 70, 32, P3), pixrgb( 1, 1, 100, 45, 45, 40, P4), image( 2, 2,[ P1, P2, P3, P4], I1), getListPixels1(I1, I2), extraerColoresT(I2, I3), extraerRGB(I3, L1,L2,L3).
 ?-  pixhex(0,0,"#FF0011",10, P1), pixhex(0,1,"#AABBCC",20, P2), pixhex(1,0,"#A5F2C2",30,P3), pixhex(1,1,"#FFFFFF",40,P4), image(2,2,[P1,P2,P3,P4], CS), imageToHistogram(CS,CS2). 
+?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(0, 2, 1,30, P3), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(1, 2, 1,30, P6), pixbit(2, 0, 1,10, P7),pixbit(2, 1, 1,30, P8), pixbit(2, 2, 1,10, P9), image(3,3,[P1,P2,P3,P4,P5,P6,P7,P8,P9], CS),getListPixels(CS,L), pixelIsRotate90(L, 3, L1).
+?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(2, 0, 1,10, P7),pixbit(2, 1, 1,30, P8), image(2,3,[P1,P2,P4,P5,P7,P8], CS),getListPixels(CS,L), pixelIsRotate90Aux(L, 2,3, L1).
+?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(2, 0, 1,10, P7),pixbit(2, 1, 1,30, P8), image(2,3,[P1,P2,P4,P5,P7,P8], CS),getListPixels(CS,L), pixbit(0,0,0,30, BitAux)  ,preImageChangePixelBit(L, BitAux,L2).   
+?- pixrgb( 0, 0, 10, 20, 180, 10, P1), pixrgb( 0, 1, 24, 22, 20, 20, P2), pixrgb( 1, 0, 30, 30, 70, 32, P3), pixrgb( 1, 1, 100, 45, 45, 40, P4), image( 2, 2,[ P1, P2, P3, P4], I1), pixrgb(0,1,56,78,65,13, RgbAux),imageInvertColorRGB(RgbAux, RMody).
 */
+
+
