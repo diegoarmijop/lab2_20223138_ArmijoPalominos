@@ -334,24 +334,29 @@ extractcAllColors([Pixel|Rest], Colors):-
 getPixelColor([_,_,Color|_], Color).
 
 %-----------------------------------------------------------------------------------------
+imageRotate90(Image, NewImage):-
+  	image(Width,Height,Pixeles, Image),
+    pixelIsRotate90Aux(Pixeles, Width, NewPixelsAux), 
+    sort(NewPixelsAux, NewPixels), 
+    image(Height, Width, NewPixels, NewImage).
 
-pixelIsRotate90([],_,[]).
-pixelIsRotate90([Pixel|Resto], Alto, NewPixeles):-
-    pixelIsRotate90(Resto, Alto, AuxNewPixeles),
-   	pixbit(X,Y,Bit,Depth, Pixel),
-    NewY is X,
-    NewX is abs(Y - (Alto-1)),
-    pixbit(NewX,NewY,Bit,Depth,NewPixel),
-    addElement(NewPixel, AuxNewPixeles, NewPixeles).
-
-pixelIsRotate90Aux([],_,_,[]).
-pixelIsRotate90Aux([Pixel|Resto], Ancho,Alto ,NewPixeles):-
-    pixelIsRotate90Aux(Resto,Ancho, Alto, AuxNewPixeles),
-   	pixbit(X,Y,Bit,Depth, Pixel),
-    %Medida is Ancho - 1,
+pixelIsRotate90Aux([],_,[]).
+pixelIsRotate90Aux([Pixel|Resto],Ancho,NewPixeles):-
+    pixelIsRotate90Aux(Resto,Ancho,AuxNewPixeles),
+    (   verifyPixbit(Pixel) 
+    ->  pixbit(X,Y,Bit,Depth, Pixel);
+    verifyPixrgb(Pixel)
+    -> pixrgb(X,Y,R,G,B,Depth,Pixel);
+    verifyPixhex(Pixel)
+    ->  pixhex(X,Y,Hex,D, Pixel)),
     NewY is X,
     NewX is abs(Y-(Ancho-1)),
-    pixbit(NewX,NewY,Bit,Depth,NewPixel),
+    (   verifyPixbit(Pixel) 
+    ->  pixbit(NewX,NewY,Bit,Depth,NewPixel);
+    verifyPixrgb(Pixel)
+    -> pixrgb(NewX,NewY,R,G,B,Depth,NewPixel);
+    verifyPixhex(Pixel)
+    ->  pixhex(NewX,NewY,Hex,D, NewPixel)),
     addElement(NewPixel, AuxNewPixeles, NewPixeles).
 
 %-----------------------------------------------------------------------------------------
@@ -476,7 +481,10 @@ pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2),pixbit(1, 0, 1,30, P3),pixbit(1, 
 ?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(2, 0, 1,10, P7),pixbit(2, 1, 1,30, P8), image(2,3,[P1,P2,P4,P5,P7,P8], CS),getListPixels(CS,L), pixelIsRotate90Aux(L, 2,3, L1).
 ?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(2, 0, 1,10, P7),pixbit(2, 1, 1,30, P8), image(2,3,[P1,P2,P4,P5,P7,P8], CS),getListPixels(CS,L), pixbit(0,0,0,30, BitAux)  ,preImageChangePixelBit(L, BitAux,L2).   
 ?- pixrgb( 0, 0, 10, 20, 180, 10, P1), pixrgb( 0, 1, 24, 22, 20, 20, P2), pixrgb( 1, 0, 30, 30, 70, 32, P3), pixrgb( 1, 1, 100, 45, 45, 40, P4), image( 2, 2,[ P1, P2, P3, P4], I1), pixrgb(0,1,56,78,65,13, RgbAux),imageInvertColorRGB(RgbAux, RMody).
+?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(0, 2, 1,30, P3), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(1, 2, 1,30, P6), image(3,2,[P1,P2,P3,P4,P5,P6], CS),getListPixels(CS,L), pixelIsRotate90Aux(L,3,2, L1), sort(L1, L4).
+?- pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2), pixbit(0, 2, 1,30, P3), pixbit(1, 0, 0,10, P4), pixbit(1, 1, 0,20, P5), pixbit(1, 2, 1,30, P6), image(3,2,[P1,P2,P3,P4,P5,P6], CS), imageRotate90(CS,CS2).
 */
+
 
 
 
