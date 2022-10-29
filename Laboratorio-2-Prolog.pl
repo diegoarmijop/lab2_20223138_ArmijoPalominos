@@ -432,12 +432,22 @@ member(X,[_|Xs]) :- member(X,Xs),!.
 %Funcion que retorna el primer elemento de una lista.
 getFirstElement([Element|_], Element).
 
+%predicado que obtiene la coordenada X de un pixel. 
 getX([X|_], X).
+
+%predicado que obtiene la coordenada Y de un pixel. 
 getY([_,Y|_], Y).
+
+%predicado que obtiene la profundidad de un pixel. 
 getDepth([_,_,_,Depth|_], Depth).
 
+%%predicado que obtiene el type de un pixel. 
 getTypePixel([_,_,_,_,Type|_], Type).
+
+%predicado que obtiene la lista con el type de cada pixel de una image. 
 getListTypePixels([_,_,_,TypePix|_], TypePix).
+
+%%predicado que obtiene la lista de pixeles de una image. 
 getListPixels([_,_,Pixels|_], Pixels).
 
 
