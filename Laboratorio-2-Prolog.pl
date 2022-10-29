@@ -424,7 +424,15 @@ imageInvertColorRGB(PixelRGB, PixelRGBModify):-
     
  
 %-----------------------------------------------------------------------------------------
-    
+
+%Abstraccion de compress. 
+%Obtener la lista de pixeles.
+%obtener colores unicos.
+%verificar si toda la imagen tiene el mismo color. 
+%verificar las columnas que tengan el mismo color. 
+%verificar las filas que tengan el mismo color.
+
+%------------------------------------------------------------------------------------------
 %Funcion que determina si un elemento pertenece a una lista. 
 member(X,[X|_]).
 member(X,[_|Xs]) :- member(X,Xs),!.
