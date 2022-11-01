@@ -506,5 +506,6 @@ pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2),pixbit(1, 0, 1,30, P3),pixbit(1, 
 %pixbit( 0, 0, 1, 10, PA), pixbit( 0, 1, 0, 20, PB), pixbit( 1, 0, 0, 30, PC), pixbit( 1, 1, 1, 4, PD), image( 2, 2, [PA, PB, PC, PD], I), imageIsBitmap(I)%
 %pixhex( 0, 0, “#FF0000”, 10, PA), pixhex( 0, 1, “#FF0000”, 20, PB), pixhex( 1, 0, “#0000FF”, 30, PC), pixhex( 1, 1, “#0000FF”, 4, PD), image( 2, 2, [PA, PB, PC, PD], I), imageIsBitmap( I ).%
 
+%pixhex( 0, 0, “#FF0000”, 10, PA), pixhex( 0, 1, “#FF0000”, 20, PB), pixhex( 1, 0, “#0000FF”, 30, PC), pixhex( 1, 1, “#0000FF”, 4, PD), image( 2, 2, [PA, PB, PC, PD], I), imageRotate90(I, I2), imageRotate90(I2, I3), imageRotate90(I3, I4), imageRotate90(I4, I5).
 
 
