@@ -507,5 +507,6 @@ pixbit(0, 0, 1,10, P1), pixbit(0, 1, 0,20, P2),pixbit(1, 0, 1,30, P3),pixbit(1, 
 %pixhex( 0, 0, “#FF0000”, 10, PA), pixhex( 0, 1, “#FF0000”, 20, PB), pixhex( 1, 0, “#0000FF”, 30, PC), pixhex( 1, 1, “#0000FF”, 4, PD), image( 2, 2, [PA, PB, PC, PD], I), imageIsBitmap( I ).%
 
 %pixhex( 0, 0, “#FF0000”, 10, PA), pixhex( 0, 1, “#FF0000”, 20, PB), pixhex( 1, 0, “#0000FF”, 30, PC), pixhex( 1, 1, “#0000FF”, 4, PD), image( 2, 2, [PA, PB, PC, PD], I), imageRotate90(I, I2), imageRotate90(I2, I3), imageRotate90(I3, I4), imageRotate90(I4, I5).
+%pixrgb( 0, 0, 255, 0, 0, 10, PA), pixrgb( 0, 1, 255, 0, 0, 20, PB), pixrgb( 1, 0, 0, 0, 255, 30, PC), pixrgbbit( 1, 1, 0, 0, 255, 4, PD), image( 2, 2, [PA, PB, PC, PD], I), imageToString(I, Str),write(Str).
 
 
