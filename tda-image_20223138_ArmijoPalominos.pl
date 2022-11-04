@@ -73,8 +73,10 @@ verifyImage(Image):-
     is_list(Pixels),
     WidthXHeight is Width*Height,
     length(Pixels, WidthXHeight), 
-    verifyCoords(Pixels, Width, Height).
+    verifyCoords(Pixels, Width, Height),!.
 
+%Predicado que verifica que las coords ingresadas sean correctas.
+%DOM: List x Num x Num
 verifyCoords(Pixels, Ancho, Alto):-
     getXYCoords(Pixels, Aux),
     sort(Aux, Aux1),
@@ -91,6 +93,8 @@ verifyCoords(Pixels, Ancho, Alto):-
     Y2 = Ancho, 
     X2 = Alto.
 
+%Predicado que obtiene las coord de una imagen.
+%DOM: List x List
 getXYCoords([],[]).
 getXYCoords([Pixel|Resto], NewCoords):-
     getXYCoords(Resto, AuxNewPixeles),
@@ -132,7 +136,7 @@ isPixmap([Cabeza|Cola]):-
 imageIsPixmap(Image):-
     verifyImage(Image),
     getListTypePixels(Image, Aux),
-    isPixmap(Aux). 
+    isPixmap(Aux),!. 
 
 %-----------------------------------------------------------------------------------------
 
@@ -148,7 +152,7 @@ isHexmap([Cabeza|Cola]):-
 imageIsHexmap(Image):-
     verifyImage(Image),
     getListTypePixels(Image, Aux),
-    isHexmap(Aux).
+    isHexmap(Aux),!.
 
 %-----------------------------------------------------------------------------------------
 %Predicado que encuentra el numero de elementos de una lista.
@@ -246,7 +250,7 @@ imageCrop(Image,X1,Y1,X2,Y2, NewImage):-
     listLength(YAux, W),
     NewWidth is W,
     NewHeight is H,
-    image(NewWidth, NewHeight, NewPixels, NewImage).
+    image(NewWidth, NewHeight, NewPixels, NewImage),!.
 
 %Predicado que dada una lista de pixeles, esta va agregando los pixeles que 
 %se encuentren dentro de un rango dado.
@@ -347,7 +351,7 @@ imageToHistogram(Image, Histogram):-
     getFirstElement(Pixels, Pix), verifyPixrgb(Pix)
     -> extractcAllColors(Pixels,L), extractRGB(L,R,G,B), preRGB(R,G,B, Histogram);
     getFirstElement(Pixels, Pix), verifyPixhex(Pix)
-    -> extractcAllColors(Pixels,L), preHex(L, Histogram)).
+    -> extractcAllColors(Pixels,L), preHex(L, Histogram)),!.
 
 %Predicado que extrae en una lista los colores de una lista de pixeles. 
 %DOM: List x List
@@ -420,7 +424,7 @@ imageChangePixel(Image,PixelModificado,NewImage):-
     getFirstElement(Pixels, Pix), verifyPixrgb(Pix), verifyPixrgb(PixelModificado)
     -> preImageChangePixelRGB(Pixels,PixelModificado, NewPixeles), image(Width,Height,NewPixeles, NewImage);
     getFirstElement(Pixels, Pix), verifyPixhex(Pix), verifyPixhex(PixelModificado)
-    -> preImageChangePixelHex(Pixels,PixelModificado, NewPixeles), image(Width,Height,NewPixeles, NewImage)).
+    -> preImageChangePixelHex(Pixels,PixelModificado, NewPixeles), image(Width,Height,NewPixeles, NewImage)),!.
 
 %Predicado que cambia un pixel tipo bit en una lista de píxeles tipo bit.
 %DOM: List x PixelMod x List
@@ -480,7 +484,7 @@ imageInvertColorRGB(PixelRGB, PixelRGBModify):-
     NewR is abs(R-255),
     NewG is abs(G-255),
     NewB is abs(B-255),
-    pixrgb(X,Y,NewR,NewG,NewB,Depth, PixelRGBModify).
+    pixrgb(X,Y,NewR,NewG,NewB,Depth, PixelRGBModify),!.
     
  
 %-----------------------------------------------------------------------------------------
@@ -489,10 +493,7 @@ imageInvertColorRGB(PixelRGB, PixelRGBModify):-
 %DOM: Image x Compressed(Imagen comprimida)
 imageCompressed(Image, Compressed):-
     image(_,_,Pixels,Image),
-     (    maplist(getPixelColor, Pixels, Aux), encode(Aux, Aux2), listLength(Aux2, 1)
-    -> maplist(getPixelColor, Pixels, Aux), sort(Aux, L), getFirstElement(L, L1), string_concat("Toda la imagen es del mismo color ", L1, Compressed) ;
-     maplist(getPixelColor, Pixels, Aux), encode(Aux, Compressed)
-    ).
+     maplist(getPixelColor, Pixels, Aux), encode(Aux, Compressed),!.
 
 %-----------------------------------------------------------------------------------------
 

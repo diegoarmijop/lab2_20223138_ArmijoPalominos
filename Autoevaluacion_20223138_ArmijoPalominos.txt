@@ -1,0 +1,27 @@
+Requerimientos Funcionales            Evaluación
+___________________________     |    ____________
+
+TDAs                            |         1
+image          			|	  1
+imageIsBitmap 			|         1
+imageIsPixmap 			|	  1
+imageIsHexmap 			|	  1
+imageIsCompressed 		|         1
+imageFlipH 			|	  1
+imageFlipV			|	  1
+imageCrop 			|	  1
+imageRGBToHex 			|	  1
+imageToHistogram 		|         1
+imageRotate90 			|	  1
+imageCompress			|	  0.5				  
+imageChangePixel		|	  1
+imageInvertColorRGB		|	  1
+imageToString			|	  0
+imageDepthLayers		|	  0
+imageDecompress                 |         0
+
+
+
+
+
+

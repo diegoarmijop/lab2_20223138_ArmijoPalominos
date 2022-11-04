@@ -1,0 +1,5 @@
+Para este laboratorio se utilizaron 4 TDA, pero para realizar las consultas solo basta con 
+abrir el archivo main, el cual es tda-image_20223138_ArmijoPalominos, ya que dentro de ese
+archivo se importaron los otros 3 TDA (pixbit, pixrgb, pixhex). Para importar estos TDA se 
+utilizo include\1. Para realizar las consultas se tiene que ir al script de pruebas de la 
+carpeta e ir copiando los ejemplos. Saludos!
